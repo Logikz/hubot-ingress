@@ -22,30 +22,72 @@
 moment = require "moment-timezone"
 
 # Environment variables
-timeFormat = process.env.HUBOT_CYCLE_TIME_FMT or "ddd hA"
+dayFormat = process.env.HUBOT_CYCLE_DAY_FMT or "ddd"
+dateFormat = process.env.HUBOT_CYCLE_DAY_FMT or "ddd, MMMM Do YYYY"
+timeFormat = process.env.HUBOT_CYCLE_TIME_FMT or "hA"
+daytimeFormat = process.env.HUBOT_CYCLE_DAYTIME_FMT or "#{dayFormat} #{timeFormat}"
 tzOffset = process.env.HUBOT_CYCLE_TZ_OFFSET or moment().format("Z")
 tzName = process.env.HUBOT_CYCLE_TZ_NAME
 
 # Basic variables
-checkpoint = 5*60*60 # 5 hours per checkpoint
-cycle = checkpoint * 35 # 35 checkpoints per cycle
+checkpoint = 5 * 60 * 60 # 5 hours per checkpoint
+checkpointsInCycle = 35
+cycle = checkpoint * checkpointsInCycle
 seconds = 1000
 
-formatTime = (time) ->
-    m = if tzName then moment(time).tz(tzName) else moment(time).zone(tzOffset)
-    m.format " #{timeFormat}"
+localizeTime = (time) ->
+    if tzName then moment(time).tz tzName else moment(time).utcOffset tzOffset
 
-getNextCycle = (next = 1) ->
-    now = new Date().getTime()
-    start = seconds * cycle * Math.floor now / (cycle * seconds)
-    time = start + cycle * seconds * next
-    formatTime(time)
+formatTime = (time, format = daytimeFormat) ->
+    m = localizeTime time
+    m.format " #{format}"
+
+calculateSomeCycle = (whenish, next = 1) ->
+    start = seconds * cycle * Math.floor whenish / (cycle * seconds)
+    start + cycle * seconds * next
+
+calculateNextCycle = (next = 1) ->
+    calculateSomeCycle new Date().getTime()
+
+getNextCycle = (next = 1, format = daytimeFormat) ->
+    formatTime calculateNextCycle next, format
+
+calculateSomeCheckpoint = (whenish, next = 1) ->
+    start = checkpoint * seconds * Math.floor whenish / (checkpoint * seconds)
+    start + checkpoint * seconds * next
+
+calculateNextCheckpoint = (next = 1) ->
+    calculateSomeCheckpoint new Date().getTime(), next
+
+getSomeCheckpoint = (whenish, next = 1, format = daytimeFormat) ->
+    time = calculateSomeCheckpoint whenish, next
+    formatTime time, format
 
 getNextCheckpoint = (next = 1) ->
-    now = new Date().getTime()
-    start = checkpoint * seconds * Math.floor now / (checkpoint * seconds)
-    time = start + checkpoint * seconds * next
-    formatTime(time)
+    formatTime calculateNextCheckpoint next
+
+calculateMuDifference = (ours, theirs) ->
+    nextCycle = calculateNextCycle 1
+    nextCheckpoint = calculateNextCheckpoint 1
+    timeRemaining = (nextCycle - nextCheckpoint) / seconds
+    checkpointsRemaining = timeRemaining / checkpoint
+    checkpointsDone = checkpointsInCycle - checkpointsRemaining
+    ourScore = checkpointsInCycle * ours / checkpointsDone
+    theirScore = checkpointsInCycle * theirs / checkpointsDone
+    difference = theirScore - ourScore
+    difference = 0 if difference < 1
+    difference + 1
+
+getMuNeededNow = (ours, theirs) ->
+    calculateMuDifference ours, theirs
+
+getMuNeededAverage = (ours, theirs) ->
+    nextCycle = calculateNextCycle 1
+    nextCheckpoint = calculateNextCheckpoint 1
+    timeRemaining = (nextCycle - nextCheckpoint) / seconds
+    checkpointsRemaining = timeRemaining / checkpoint
+    difference = calculateMuDifference ours, theirs
+    Math.ceil difference / checkpointsRemaining
 
 module.exports = (robot) ->
   robot.respond /cycle offset/i, (msg) ->
@@ -57,20 +99,62 @@ module.exports = (robot) ->
     msg.send "Timezone offset is set to #{tzOffset}. I hope you know what you are doing."
 
   robot.respond /cycle set offsetname (.*)/i, (msg) ->
-    tzOffset = msg.match[1]
+    tzName = msg.match[1]
     msg.send "Timezone offset name is set to #{tzName}. I hope you know what you are doing."
 
-  robot.respond /(septi)?cycle\s*([0-9])?/i, (msg) ->
+  robot.respond /(septi)?cycle\s*([0-9])?$/i, (msg) ->
     count = +msg.match[2]
     count = 1 unless count > 1
     times = []
     times.push getNextCycle number for number in [1..count]
     msg.send "The next #{count} cycle(s) occur at: #{times}."
 
-
-  robot.respond /c(heck)?p(oint)?\s*([0-9])?/i, (msg) ->
+  robot.respond /c(heck)?p(oint)?(\s+[0-9]+)?$/i, (msg) ->
     count = +msg.match[3]
     count = 1 unless count > 1
     times = []
     times.push getNextCheckpoint number for number in [1..count]
     msg.send "The next #{count} checkpoint(s) occur at: #{times}."
+
+  robot.respond /c(heck)?p(oint)?s\s+on\s+((this|next)\s+)?([a-z]+day)/i, (msg) ->
+    today = localizeTime moment()
+    whenish = today.clone().day(msg.match[5]).startOf "day"
+    unless whenish.isAfter today
+        whenish.add 7, "days"
+    day = formatTime whenish, dateFormat
+
+    whenish.subtract 1, "minute"
+    times = []
+    times.push getSomeCheckpoint whenish, number, timeFormat for number in [1..5]
+    msg.send "The checkpoints on #{day} occur at: #{times}."
+
+  robot.respond /c(heck)?p(oint)?s on (.*)/i, (msg) ->
+    return if msg.match[3].match /day$/i
+    today = localizeTime moment().isoWeekday()
+    whenish = localizeTime(new Date(msg.match[3])).startOf "day"
+    day = formatTime whenish, dateFormat
+
+    whenish.subtract 1, "minute"
+    times = []
+    times.push getSomeCheckpoint whenish, number, timeFormat for number in [1..5]
+    msg.send "The checkpoints on #{day} occur at: #{times}."
+
+  robot.respond /m(ind\s*)?u(nits?)?( needed)?\s+([0-9]+k?)\s+([0-9]+k?)/i, (msg) ->
+    ours = +msg.match[4]
+    ours = 1000 * +msg.match[4].slice 0, -1 if "k" is msg.match[4].slice -1
+    ours = 0 unless ours > 0
+    theirs = +msg.match[5]
+    theirs = 1000 * +msg.match[5].slice 0, -1 if "k" is msg.match[5].slice -1
+    theirs = 0 unless theirs > 0
+    needed = getMuNeededNow ours, theirs
+    msg.send "We need #{needed} MU to win the cycle."
+
+  robot.respond /m(ind\s*)?u(nits?)? average\s+([0-9]+k?)\s+([0-9]+k?)/i, (msg) ->
+    ours = +msg.match[3]
+    ours = 1000 * +msg.match[3].slice 0, -1 if "k" is msg.match[3].slice -1
+    ours = 0 unless ours > 0
+    theirs = +msg.match[4]
+    theirs = 1000 * +msg.match[4].slice 0, -1 if "k" is msg.match[4].slice -1
+    theirs = 0 unless theirs > 0
+    needed = getMuNeededAverage ours, theirs
+    msg.send "We need to increase our MU by #{needed} per checkpoint to win the cycle."

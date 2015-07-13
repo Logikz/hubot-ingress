@@ -1,7 +1,7 @@
 {
   "name": "hubot-ingress",
   "description": "Ingress commands for Hubot",
-  "version": "0.10.0",
+  "version": "0.16.2",
   "author": {
     "name": "Kevin Lanni",
     "email": "therealklanni@gmail.com",
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "coffee-script": "~1.6",
-    "moment-timezone": "~0.2"
+    "moment-timezone": "~0.3"
   },
   "devDependencies": {
     "mocha": "*",

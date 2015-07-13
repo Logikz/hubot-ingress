@@ -7,7 +7,7 @@
 # Commands:
 #   hubot I have the <badge> badge - add/remove badges (say don't to remove)
 #   hubot I don't have any badges - remove your badges completely
-#   hubot what badges do I have? - show off your Ingress badgesâ€”you worked hard for them!
+#   hubot what badges do I have? - show off your Ingress badges—you worked hard for them!
 #   hubot what badges does <person> have? - check another agent's badges
 #   hubot list badges - list the badges available
 #   hubot display badges - displays all the badge titles and the badges
@@ -25,7 +25,7 @@ badgeList = [
   'founder',
   'guardian1', 'guardian2', 'guardian3', 'guardian4', 'guardian5',
   'hacker1', 'hacker2', 'hacker3', 'hacker4', 'hacker5',
-  'hankjohnson',
+  'hank-johnson',
   'helios',
   'illuminator1', 'illuminator2', 'illuminator3', 'illuminator4',
   'illuminator5',
@@ -33,8 +33,8 @@ badgeList = [
   'innovator1', 'innovator2', 'innovator3', 'innovator4', 'innovator5'
   'interitus',
   'liberator1', 'liberator2', 'liberator3', 'liberator4', 'liberator5',
-  "missionday",
   'mindcontroller1', 'mindcontroller2', 'mindcontroller3', 'mindcontroller4', 'mindcontroller5',
+  'missionday',
   'nl1331',
   'oliver-lynton-wolfe',
   'persepolis',
@@ -47,13 +47,23 @@ badgeList = [
   'shonin',
   'sojourner1', 'sojourner2', 'sojourner3', 'sojourner4', 'sojourner5',
   'specops1', 'specops2', 'specops3', 'specops4', 'specops5',
-  'stellavyctory',
-  'susannamoyer',
-  'trekker1', 'trekker2', 'trekker3', 'trekker4', 'trekker5', 
-  'translator1', 'translator2', 'translator3', 'translator4', 
+  'stella-vyctory',
+  'susanna-moyer',
+  'trekker1', 'trekker2', 'trekker3', 'trekker4', 'trekker5',
+  'translator1', 'translator2', 'translator3', 'translator4',
   'translator5',
   'verified'
 ]
+
+colorList= {
+  '': '',
+  'bronze': 1,
+  'silver': 2,
+  'gold': 3,
+  'platinum': 4,
+  'black': 5,
+  'onyx': 5
+}
 
 badgeTypes = {
   'builder': 5,
@@ -65,7 +75,7 @@ badgeTypes = {
   'founder': 1,
   'guardian': 5,
   'hacker': 5,
-  'hankjohnson': 1,
+  'hank-johnson': 1,
   'helios': 1,
   'illuminator': 5,
   'initio': 1,
@@ -74,7 +84,7 @@ badgeTypes = {
   'liberator': 5,
   'mindcontroller': 5,
   'missionday': 1,
-  'nl1331' : 1,
+  'nl1331': 1,
   'oliver-lynton-wolfe': 1,
   'persepolis': 1,
   'pioneer': 5,
@@ -86,8 +96,8 @@ badgeTypes = {
   'shonin': 1,
   'sojourner': 5,
   'specops': 5,
-  'stellavyctory': 1,
-  'susannamoyer': 1,
+  'stella-vyctory': 1,
+  'susanna-moyer': 1,
   'trekker': 5,
   'translator': 5,
   'verified': 1
@@ -115,7 +125,7 @@ module.exports = (robot) ->
 
   robot.respond /(@?[.\w\-]+) (?:have|has|got|earned)(?: the)? :?([\-\w,\s]+):? badges?/i, (msg) ->
     who = msg.match[1].toLowerCase().replace '@', ''
-    badgeNames = (msg.match[2].toLowerCase().replace /\s*/g, '').split ','
+    badgeNames = (msg.match[2].toLowerCase()).split ','
 
     if who == 'i'
       who = msg.envelope.user
@@ -123,27 +133,47 @@ module.exports = (robot) ->
       who = robot.brain.userForName who
 
     invalidNames = []
-    for badgeName in badgeNames
-      if badgeName not in badgeList
+    validNames = []
+    for rawBadgeName in badgeNames
+      colorNames = Object.keys(colorList).join '|'
+      badgeNameParts = rawBadgeName.match /// ^
+        \s* # Leading spaces
+        (#{colorNames})?
+        \s* # Actual space
+        ([\-\w]+) # Badge Name
+        \s* # Trailing space
+        $ ///i
+
+      continue unless badgeNameParts?
+      badgeName = badgeNameParts[2].toLowerCase()
+
+      colorName = 'bronze'
+      colorName = badgeNameParts[1] if badgeNameParts[1]
+      colorName = '' if badgeName in badgeList
+
+      badgeName += colorList[colorName.toLowerCase()]
+
+      if badgeName in badgeList
+        validNames.push badgeName
+      else
         invalidNames.push badgeName
 
     msg.reply "invalid badge name(s): #{invalidNames.join ', '}." if invalidNames.length > 0
-    badgeNames = badgeNames.filter (x) -> x not in invalidNames
 
-    if badgeNames.length > 0
-      for badgeName in badgeNames
+    if validNames.length > 0
+      for badgeName in validNames
         badges.add who, badgeName
 
       userBadges = badges.forUser who
-      badgeNames = badgeNames.filter (x) ->
+      validNames = validNames.filter (x) ->
         ":#{x}:" in userBadges
 
       if who.name == msg.envelope.user.name
-        msg.reply "congrats on earning the :#{badgeNames.join ': :'}:
- badge#{if badgeNames.length > 1 then 's' else ''}!"
+        msg.reply "congrats on earning the :#{validNames.join ': :'}:
+ badge#{if validNames.length > 1 then 's' else ''}!"
       else
-        msg.send "@#{who.name}: congrats on earning the :#{badgeNames.join ': :'}:
- badge#{if badgeNames.length > 1 then 's' else ''}!"
+        msg.send "@#{who.name}: congrats on earning the :#{validNames.join ': :'}:
+ badge#{if validNames.length > 1 then 's' else ''}!"
 
   robot.respond /wh(?:at|ich) badges? do(?:es)? (@?[.\w\-]+) have/i, (msg) ->
     who = msg.match[1].replace '@', ''
@@ -178,18 +208,18 @@ module.exports = (robot) ->
   robot.respond /I (?:do(?:n't| not)) have any badges?/i, (msg) ->
     badges.clear msg.envelope.user
     msg.reply 'OK, removed all your badges'
-    
+
   robot.respond /list badges ?.*/i, (msg) ->
     message = ""
     for badgeType of badgeTypes
       message += "#{badgeType}, "
-    msg.send message  
+    msg.send message
 
   robot.respond /display badges ?.*/i, (msg) ->
     message = "The available badges are:\n"
-    for badgeType, badgeNum of badgeTypes 
+    for badgeType, badgeNum of badgeTypes
       if badgeNum == 1
         message += "#{badgeType}: :#{badgeType}: \n"
-      else 
+      else
         message += "#{badgeType}: :#{badgeType}1: :#{badgeType}2: :#{badgeType}3: :#{badgeType}4: :#{badgeType}5: \n"
-    msg.send message   
+    msg.send message
