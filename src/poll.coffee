@@ -53,39 +53,6 @@ module.exports = (robot) ->
             msg.send error
             @robot.logger.error error
 
-    robot.respond /vote\s+(\d+)/i, (msg) ->
-        try     
-            vote = msg.match[1]
-            user = msg.envelope.user['name']
-            room = msg.message.room
-            options = @robot.brain.data.poll[room].options
-            @robot.logger.info "Adding new vote for #{@robot.brain.data.poll[room].topic} with #{Object.keys(options).length} options"
-            if vote >= Object.keys(options).length
-                @robot.logger.info "Invalid vote. #{vote} >= #{Object.keys(options).length}"
-                msg.reply "Please vote for a valid option"
-                return
-            #check if the user already voted
-            @robot.logger.info "Adding a vote for #{vote} for #{user}"
-            for index, option of options
-                @robot.logger.info "Checking #{index}: #{option.text}"
-                if option.users != undefined
-                    @robot.logger.info "Some have voted for this one"
-                    option.users = option.users.filter (currentUser) -> currentUser isnt user
-            @robot.logger.info "Finishes removing user"
-            selectedOption = @robot.brain.data.poll[room].options[vote]
-            if selectedOption.users != undefined
-                @robot.logger.info "add user to this option since it's defined"
-                selectedOption.users.push(user)
-            else
-                @robot.logger.info "First vote, create new array"
-                selectedOption.users = []
-                selectedOption.users.push(user)
-            @robot.brain.save()
-            @robot.logger.info "Brain saved"
-            msg.reply "Thanks for your vote"
-        catch error
-            @robot.logger.error error
-
     robot.respond /vote\s+(\d+,?)/i, (msg) ->
         try
             votes = msg.match[1]
