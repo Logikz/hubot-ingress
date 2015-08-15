@@ -104,13 +104,11 @@ module.exports = (robot) ->
             
             @robot.logger.info "Finishes removing user"
             votes = votes.split(",")
-            for(i = 0; i < votes.length; ++i){
-                vote = votes[i]
+            for vote in votes
                 if vote >= Object.keys(options).length
                     @robot.logger.info "Invalid vote. #{vote} >= #{Object.keys(options).length}"
                     msg.reply "Please vote for a valid option"
                     return
-
                 selectedOption = @robot.brain.data.poll[room].options[vote]
                 if selectedOption.users != undefined
                     @robot.logger.info "add user to this option since it's defined"
@@ -118,9 +116,7 @@ module.exports = (robot) ->
                 else
                     @robot.logger.info "First vote, create new array"
                     selectedOption.users = []
-                    selectedOption.users.push(user)                
-            }
-
+                    selectedOption.users.push(user)
             @robot.brain.save()
             @robot.logger.info "Brain saved"
             msg.reply "Thanks for your vote"
