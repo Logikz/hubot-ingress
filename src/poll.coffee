@@ -86,7 +86,7 @@ module.exports = (robot) ->
         catch error
             @robot.logger.error error
 
-    robot.respond /vote\s+(\d+,?)/i ->
+    robot.respond /vote\s+(\d+,?)/i, (msg) ->
         try
             votes = msg.match[1]
             user = msg.envelope.user['name']
