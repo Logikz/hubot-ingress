@@ -53,7 +53,7 @@ module.exports = (robot) ->
             msg.send error
             @robot.logger.error error
 
-    robot.respond /vote\s+((\d+,?)*)/i, (msg) ->
+    robot.respond /vote\s+((\d+,?\s?)*)/i, (msg) ->
         try
             votes = msg.match[1]
             user = msg.envelope.user['name']
@@ -70,6 +70,7 @@ module.exports = (robot) ->
             @robot.logger.info "Finished removing user"
             votes = votes.split ","
             for vote in votes
+                vote = vote.replace /^\s+|\s+$/g, ""
                 @robot.logger.info "running for vote: #{vote}"
                 if vote >= Object.keys(options).length
                     @robot.logger.info "Invalid vote. #{vote} >= #{Object.keys(options).length}"
