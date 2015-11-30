@@ -16,13 +16,16 @@
 #   therealklanni
 
 badgeList = [
+  'abaddon',
   'builder1', 'builder2', 'builder3', 'builder4', 'builder5',
   'connector1', 'connector2', 'connector3', 'connector4', 'connector5',
   'darsana',
+  'edgarallanwright',
   'engineer1', 'engineer2', 'engineer3', 'engineer4', 'engineer5',
   'eve',
   'explorer1', 'explorer2', 'explorer3', 'explorer4', 'explorer5',
   'founder',
+  'goruck',
   'guardian1', 'guardian2', 'guardian3', 'guardian4', 'guardian5',
   'hacker1', 'hacker2', 'hacker3', 'hacker4', 'hacker5',
   'hank-johnson',
@@ -32,6 +35,7 @@ badgeList = [
   'initio',
   'innovator1', 'innovator2', 'innovator3', 'innovator4', 'innovator5'
   'interitus',
+  'klue',
   'liberator1', 'liberator2', 'liberator3', 'liberator4', 'liberator5',
   'mindcontroller1', 'mindcontroller2', 'mindcontroller3', 'mindcontroller4', 'mindcontroller5',
   'missionday',
@@ -66,13 +70,16 @@ colorList= {
 }
 
 badgeTypes = {
+  'abaddon': 1,
   'builder': 5,
   'connector': 5,
   'darsana': 1,
+  'edgarallanwright': 1,
   'engineer': 5,
   'eve': 1,
   'explorer': 5,
   'founder': 1,
+  'goruck': 1,
   'guardian': 5,
   'hacker': 5,
   'hank-johnson': 1,
@@ -81,6 +88,7 @@ badgeTypes = {
   'initio': 1,
   'innovator': 5,
   'interitus': 1,
+  'klue': 1,
   'liberator': 5,
   'mindcontroller': 5,
   'missionday': 1,
