@@ -11,12 +11,11 @@
 #   logikz
 
 welcomeMessage = '''
-Welcome to Slack! :allthethings:  
+Welcome to Slack! :frog:  
 Please enjoy the use of our ingress bot - Jarvis.  You can type ```jarvis help``` for command usage.  
 Please only use jarvis in general or in private message directly to Jarvis.  He can be quite the talker :). 
-Feel free to make public and private chat rooms to discuss various topics.  
 
-If you need any help, feel free to message Logikz
+If you need any help, feel free to message ITRogue.
 '''
 
 module.exports = (robot) ->
