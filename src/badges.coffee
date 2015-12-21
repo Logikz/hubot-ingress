@@ -17,7 +17,9 @@
 
 badgeList = [
   'abaddon',
+  'ada',
   'builder1', 'builder2', 'builder3', 'builder4', 'builder5',
+  'chapeau',
   'connector1', 'connector2', 'connector3', 'connector4', 'connector5',
   'darsana',
   'edgarallanwright',
@@ -72,7 +74,9 @@ colorList= {
 
 badgeTypes = {
   'abaddon': 1,
+  'ada': 1,
   'builder': 5,
+  'chapeau': 1,
   'connector': 5,
   'darsana': 1,
   'edgarallanwright': 1,
