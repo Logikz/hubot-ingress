@@ -17,6 +17,9 @@ class Poll
     constructor: () ->
 
 module.exports = (robot) ->
+    robot.brain.on 'loaded', ->
+        robot.brain.data.poll ?= {}
+
     robot.respond /start poll (.*?)\s(option:\s?.*)+/i, (msg) ->
         try
             @robot.logger.info "Create poll called: #{msg}"
