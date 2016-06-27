@@ -7,7 +7,7 @@
 # Commands:
 #   hubot I have the <badge> badge - add/remove badges (say don't to remove)
 #   hubot I don't have any badges - remove your badges completely
-#   hubot what badges do I have? - show off your Ingress badges—you worked hard for them!
+#   hubot what badges do I have? - show off your Ingress badgesâ€”you worked hard for them!
 #   hubot what badges does <person> have? - check another agent's badges
 #   hubot list badges - list the badges available
 #   hubot display badges - displays all the badge titles and the badges
@@ -19,18 +19,18 @@ badgeList = [
   'abaddon',
   'acolyte',
   'ada',
+  'aegis', 
   'builder1', 'builder2', 'builder3', 'builder4', 'builder5',
-  'chapeau',
   'connector1', 'connector2', 'connector3', 'connector4', 'connector5',
   'darsana',
-  'edgarallanwright',
+  'edgar-allan-wright',
   'engineer1', 'engineer2', 'engineer3', 'engineer4', 'engineer5',
   'eve',
   'explorer1', 'explorer2', 'explorer3', 'explorer4', 'explorer5',
   'founder',
   'goruck',
-  'goruck-stealth',
-  'goruck-urban',
+  'goruckstealth',
+  'goruckurban',
   'guardian1', 'guardian2', 'guardian3', 'guardian4', 'guardian5',
   'hacker1', 'hacker2', 'hacker3', 'hacker4', 'hacker5',
   'hank-johnson',
@@ -44,28 +44,30 @@ badgeList = [
   'klue',
   'liberator1', 'liberator2', 'liberator3', 'liberator4', 'liberator5',
   'mindcontroller1', 'mindcontroller2', 'mindcontroller3', 'mindcontroller4', 'mindcontroller5',
-  'missionday',
-  'nl1331',
-  'obsidian',
+  'missionday1', 'missionday2', 'missionday3', 'missionday4', 'missionday5',
+  'nl-1331-1',
+  'nl-1331-2',
   'oliver-lynton-wolfe',
+  'obsidian',
+  'p-a-chapeau',
   'persepolis',
   'pioneer1', 'pioneer2', 'pioneer3', 'pioneer4', 'pioneer5',
   'purifier1', 'purifier2', 'purifier3', 'purifier4', 'purifier5',
   'recharger1', 'recharger2', 'recharger3', 'recharger4', 'recharger5',
   'recursion',
-  'recruiter1', 'recruiter2', 'recruiter3', 'recruiter4', 'recruiter5',
+  'recruiter0', 'recruiter1', 'recruiter2', 'recruiter3', 'recruiter4', 'recruiter5',
   'seer1', 'seer2', 'seer3', 'seer4', 'seer5',
   'shonin',
   'sojourner1', 'sojourner2', 'sojourner3', 'sojourner4', 'sojourner5',
   'specops1', 'specops2', 'specops3', 'specops4', 'specops5',
   'stella-vyctory',
-  'susanna-moyer',
-  'susannamoyer2016',
+  'susanna-moyer1',
+  'susanna-moyer2',
   'trekker1', 'trekker2', 'trekker3', 'trekker4', 'trekker5',
   'translator1', 'translator2', 'translator3', 'translator4',
   'translator5',
-  'vanguard1', 'vanguard2', 'vanguard3', 'vanguard4', 'vanguard5',
-  'verified'
+  'verified',
+  'vanguard1', 'vanguard2', 'vanguard3', 'vanguard4', 'vanguard5'
 ]
 
 colorList= {
@@ -82,18 +84,18 @@ badgeTypes = {
   'abaddon': 1,
   'acolyte': 1,
   'ada': 1,
+  'aegis': 1,
   'builder': 5,
-  'chapeau': 1,
   'connector': 5,
   'darsana': 1,
-  'edgarallanwright': 1,
+  'edgar-allan-wright': 1,
   'engineer': 5,
   'eve': 1,
   'explorer': 5,
   'founder': 1,
   'goruck': 1,
-  'goruck-stealth': 1,
-  'goruck-urban': 1,
+  'goruckstealth': 1,
+  'goruckurban': 1,
   'guardian': 5,
   'hacker': 5,
   'hank-johnson': 1,
@@ -106,27 +108,29 @@ badgeTypes = {
   'klue': 1,
   'liberator': 5,
   'mindcontroller': 5,
-  'missionday': 1,
-  'nl1331': 1,
-  'obsidian': 1,
+  'missionday': 5,
+  'nl-1331-1': 1,
+  'nl-1331-2': 1,
   'oliver-lynton-wolfe': 1,
+  'obsidian': 1,
+  'p-a-chapeau': 1,
   'persepolis': 1,
   'pioneer': 5,
   'purifier': 5,
   'recharger': 5,
   'recursion': 1,
-  'recruiter': 5,
+  'recruiter': 6,
   'seer': 5,
   'shonin': 1,
   'sojourner': 5,
   'specops': 5,
   'stella-vyctory': 1,
-  'susanna-moyer': 1,
-  'susannamoyer2016': 1,
+  'susanna-moyer1': 1,
+  'susanna-moyer2': 1,
   'trekker': 5,
   'translator': 5,
-  'vanguard' : 5,
-  'verified': 1
+  'verified': 1,
+  'vanguard': 5
 }
 
 module.exports = (robot) ->
@@ -246,6 +250,8 @@ module.exports = (robot) ->
     for badgeType, badgeNum of badgeTypes
       if badgeNum == 1
         message += "#{badgeType}: :#{badgeType}: \n"
-      else
+      else if badgeNum == 5
         message += "#{badgeType}: :#{badgeType}1: :#{badgeType}2: :#{badgeType}3: :#{badgeType}4: :#{badgeType}5: \n"
+      else if badgeNum == 6
+        message += "#{badgeType}: :#{badgeType}0: :#{badgeType}1: :#{badgeType}2: :#{badgeType}3: :#{badgeType}4: :#{badgeType}5: \n"
     msg.send message
